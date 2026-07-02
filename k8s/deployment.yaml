@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: techmarket-orders-api
+  labels:
+    app: techmarket-orders-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: techmarket-orders-api
+  template:
+    metadata:
+      labels:
+        app: techmarket-orders-api
+        version: stable # Etiqueta clave para el Blue-Green
+    spec:
+      containers:
+      - name: orders-api
+        image: nginx:latest # Usamos nginx como base para la simulación
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"

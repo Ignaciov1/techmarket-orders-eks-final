@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: techmarket-orders-service
+  labels:
+    app: techmarket-orders-api
+spec:
+  type: LoadBalancer
+  selector:
+    app: techmarket-orders-api
+    version: stable # ¡Aquí está la magia! Solo envía tráfico a los pods "stable"
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80

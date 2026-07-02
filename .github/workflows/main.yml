@@ -1,0 +1,22 @@
+name: TechMarket Orders CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Call-Build:
+    uses: ./.github/workflows/build-template.yml
+    with:
+      image_name: "techmarket-orders-api:v2"
+
+  Call-Deploy:
+    needs: Call-Build
+    uses: ./.github/workflows/deploy-template.yml
+    with:
+      cluster_name: "techmarket-cluster"
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}

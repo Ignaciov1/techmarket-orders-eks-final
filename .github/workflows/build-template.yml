@@ -1,0 +1,22 @@
+name: Reusable Build Template
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build & Push Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Build Simulation
+        run: |
+          echo "Construyendo imagen Docker: ${{ inputs.image_name }}"
+          echo "Simulando push a Amazon ECR..."
+          echo "¡Build completado con éxito!"

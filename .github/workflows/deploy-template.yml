@@ -1,0 +1,48 @@
+name: Reusable Deploy Template
+
+on:
+  workflow_call:
+    inputs:
+      cluster_name:
+        required: true
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_SESSION_TOKEN:
+        required: true
+
+jobs:
+  deploy-and-remediate:
+    name: Deploy to EKS & Auto-Healing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Update Kubeconfig
+        run: aws eks update-kubeconfig --name ${{ inputs.cluster_name }} --region us-east-1
+
+      - name: Deploy Manifests (Blue-Green)
+        run: kubectl apply -f k8s/
+
+      - name: Smoke Test (Validación de Salud)
+        run: kubectl rollout status deployment/techmarket-orders-api --timeout=60s
+
+      - name: Rollback Automático (Auto-Healing)
+        if: failure()
+        run: |
+          echo "¡Alerta Crítica! Falló la validación post-deploy (Timeout o CrashLoopBackOff)."
+          echo "Aislando el tráfico y ejecutando Rollback de emergencia..."
+          kubectl rollout undo deployment/techmarket-orders-api
+          echo "El servicio ha regresado a su estado seguro. Zero-Downtime mantenido."
