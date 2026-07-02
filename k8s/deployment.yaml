@@ -13,11 +13,11 @@ spec:
     metadata:
       labels:
         app: techmarket-orders-api
-        version: stable # Etiqueta clave para el Blue-Green
+        version: green # Etiqueta clave para el Blue-Green
     spec:
       containers:
       - name: orders-api
-        image: nginx:latest # Usamos nginx como base para la simulación
+        image: nginx:version-rota-fatal # Usamos nginx como base para la simulación
         ports:
         - containerPort: 80
         resources:
